@@ -45,6 +45,12 @@ func AWSMachineTemplate(infraName, ami string, nodePool *hyperv1.NodePool, contr
 			subnet.Filters = append(subnet.Filters, filter)
 		}
 	}
+	volume := &capiaws.Volume{}
+	if nodePool.Spec.Platform.AWS.RootVolume != nil {
+		volume.Size = nodePool.Spec.Platform.AWS.RootVolume.Size
+		volume.IOPS = nodePool.Spec.Platform.AWS.RootVolume.IOPS
+		volume.Type = nodePool.Spec.Platform.AWS.RootVolume.Type
+	}
 
 	securityGroups := []capiaws.AWSResourceReference{}
 	for _, sg := range nodePool.Spec.Platform.AWS.SecurityGroups {
@@ -92,6 +98,7 @@ func AWSMachineTemplate(infraName, ami string, nodePool *hyperv1.NodePool, contr
 					},
 					AdditionalSecurityGroups: securityGroups,
 					Subnet:                   subnet,
+					RootVolume:               volume,
 				},
 			},
 		},
